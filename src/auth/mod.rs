@@ -6,4 +6,4 @@ pub use req::{Request, RequestSimple};
 
 use lambda_runtime::LambdaEvent;
 
-pub type AuthEvent = LambdaEvent<Request>;
+pub type Event = LambdaEvent<Request>;

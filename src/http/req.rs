@@ -1,10 +1,10 @@
-use std::time::{Duration, SystemTime, UNIX_EPOCH};
-use std::collections::HashMap;
-use serde::{Serialize, Deserialize};
 use crate::common;
+use std::collections::HashMap;
+use std::time::{Duration, SystemTime, UNIX_EPOCH};
+use serde::{Serialize, Deserialize};
 
 #[cfg(feature = "chrono")]
-use chrono::{Utc, TimeZone, DateTime};
+use chrono::{DateTime, TimeZone, Utc};
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -13,19 +13,19 @@ pub struct RequestSimple {
     pub cookies: Option<Vec<String>>,
     pub headers: HashMap<String, String>,
     pub query_string_parameters: Option<HashMap<String,String>>,
-    pub request_context: common::RequestContextSimple,
+    pub request_context: common::RequestContext,
+    pub body: Option<String>,
     pub path_parameters: Option<HashMap<String, String>>,
+    #[serde(rename = "isBase64Encoded")]
+    pub is_base64encoded: bool,
     pub stage_variables: Option<HashMap<String, String>>,
 }
+
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Request {
     pub version: String,
-    #[serde(rename = "type")]
-    pub type_field: String,
-    pub route_arn: String,
-    pub identity_source: Vec<String>,
     pub route_key: String,
     pub raw_path: String,
     pub raw_query_string: String,
@@ -33,12 +33,45 @@ pub struct Request {
     pub headers: HashMap<String, String>,
     pub query_string_parameters: Option<HashMap<String,String>>,
     pub request_context: common::RequestContext,
+    pub body: Option<String>,
     pub path_parameters: Option<HashMap<String, String>>,
+    #[serde(rename = "isBase64Encoded")]
+    pub is_base64encoded: bool,
     pub stage_variables: Option<HashMap<String, String>>,
 }
 
+pub enum ParseBodyError {
+    Base64DecodeError(base64::DecodeError),
+    FromUtf8Error(std::string::FromUtf8Error)
+}
 
 impl RequestSimple {
+    pub fn body(&self) -> Result<Option<String>, ParseBodyError> {
+        if self.body.is_none() {
+            return Ok(None)
+        }
+        return if !self.is_base64encoded {
+            Ok(self.body.clone())
+        } else {
+            let result = base64::decode(self.body.clone().unwrap());
+            if result.is_err() { return Err(ParseBodyError::Base64DecodeError(result.unwrap_err()))}
+            let result = String::from_utf8(result.unwrap());
+            if result.is_err() {return Err(ParseBodyError::FromUtf8Error(result.unwrap_err()))}
+            Ok(Some(result.unwrap()))
+        }
+    }
+
+    pub fn body_binary(&self) -> Result<Option<Vec<u8>>, base64::DecodeError> {
+        if self.body.is_none() {
+            return Ok(None)
+        }
+        return if !self.is_base64encoded {
+            Ok(self.body.clone().map(|b|b.as_bytes().to_vec()))
+        } else {
+            Ok(Some(base64::decode(self.body.clone().unwrap())?.as_slice().to_vec()))
+        }
+    }
+
     pub fn path(&self) -> String {
         self.request_context.http.path.clone()
     }
@@ -101,9 +134,34 @@ impl RequestSimple {
         self.request_context.http.protocol.clone()
     }
 }
-
 
 impl Request {
+    pub fn body(&self) -> Result<Option<String>, ParseBodyError> {
+        if self.body.is_none() {
+            return Ok(None)
+        }
+        return if !self.is_base64encoded {
+            Ok(self.body.clone())
+        } else {
+            let result = base64::decode(self.body.clone().unwrap());
+            if result.is_err() { return Err(ParseBodyError::Base64DecodeError(result.unwrap_err()))}
+            let result = String::from_utf8(result.unwrap());
+            if result.is_err() {return Err(ParseBodyError::FromUtf8Error(result.unwrap_err()))}
+            Ok(Some(result.unwrap()))
+        }
+    }
+
+    pub fn body_binary(&self) -> Result<Option<Vec<u8>>, base64::DecodeError> {
+        if self.body.is_none() {
+            return Ok(None)
+        }
+        return if !self.is_base64encoded {
+            Ok(self.body.clone().map(|b|b.as_bytes().to_vec()))
+        } else {
+            Ok(Some(base64::decode(self.body.clone().unwrap())?.as_slice().to_vec()))
+        }
+    }
+
     pub fn path(&self) -> String {
         self.request_context.http.path.clone()
     }
@@ -166,3 +224,9 @@ impl Request {
         self.request_context.http.protocol.clone()
     }
 }
+
+
+
+
+
+
