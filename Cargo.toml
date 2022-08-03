@@ -1,0 +1,19 @@
+[package]
+name = "hegel"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+serde = { version = "1.0.141", features = ["derive"] }
+lambda_runtime = "0.6.0"
+
+chrono = { version = "0.4.19", optional = true }
+tokio = { version = "1.20.1", optional = true }
+serde_json = { version = "1.0.82", optional = true }
+
+[features]
+default = []
+binary = ["dep:tokio", "dep:serde_json"]
+chrono = ["dep:chrono"]
