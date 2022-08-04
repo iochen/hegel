@@ -8,7 +8,7 @@ readme = "README.md"
 homepage = "https://github.com/iochen/hegel"
 repository = "https://github.com/iochen/hegel"
 license = "MIT"
-keywords = ["aws", "API Gateway", "Lambda", "Serverless", "Payload"]
+keywords = ["AWS", "API-Gateway", "Lambda", "Serverless", "Payload"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
