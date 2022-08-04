@@ -8,7 +8,7 @@ hegel = "0.1.0"
 ```
 
 ## Document
-[DOC.RS](https://docs.rs/hegel)
+[DOCS.RS](https://docs.rs/hegel)
 
 ## Introduction
 Hegel provides the lightest AWS HTTP API Gateway Payload for Lambda
