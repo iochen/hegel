@@ -4,7 +4,7 @@ AWS **H**TTP API **G**at**e**way Payload for **L**ambda
 ## Installation
 ```toml
 [dependencies]
-hegel = "0.1.0"
+hegel = "0.1.1"
 ```
 
 ## Document

@@ -66,6 +66,7 @@ pub struct Request {
 }
 
 /// Enum type of errors that may occur during request body parsing
+#[derive(Debug, Clone)]
 pub enum ParseBodyError {
     Base64DecodeError(base64::DecodeError),
     FromUtf8Error(std::string::FromUtf8Error)
