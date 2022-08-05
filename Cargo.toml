@@ -1,7 +1,7 @@
 [package]
 name = "hegel"
 authors = ["Richard Chen (iochen.com)"]
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 description = "AWS HTTP API Gateway Payload for Lambda"
 readme = "README.md"
